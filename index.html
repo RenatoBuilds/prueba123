@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cámara Pro</title>
+    <!-- Conexión al manifiesto -->
+    <link rel="manifest" href="manifest.json">
+    <!-- Icono opcional (puedes poner uno tuyo) -->
+    <link rel="apple-touch-icon" href="icon.png">
+    
+    <style>
+        body { 
+            font-family: sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            background: #1a1a1a; 
+            color: white;
+        }
+        
+        .btn {
+            padding: 20px 40px;
+            font-size: 22px;
+            background: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 87, 34, 0.4);
+        }
+
+        .contenedor-btn { position: relative; width: 200px; height: 70px; }
+
+        input[type="file"] {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; cursor: pointer;
+        }
+
+        #foto-final {
+            margin-top: 20px;
+            max-width: 90%;
+            border-radius: 10px;
+            display: none;
+            border: 2px solid #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor-btn">
+        <button class="btn" id="btn-tomar">📸 Tomar Foto</button>
+        <!-- capture="user" = Frontal | environment = Trasera -->
+        <input type="file" id="camara-input" accept="image/*" capture="user">
+    </div>
+
+    <img id="foto-final" alt="Tu foto">
+
+    <script>
+        const btn = document.getElementById('btn-tomar');
+        const input = document.getElementById('camara-input');
+        const img = document.getElementById('foto-final');
+
+        // Activar input al pulsar botón
+        btn.addEventListener('click', () => input.click());
+
+        // Mostrar foto al tomarla
+        input.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    btn.textContent = "✅ Lista";
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        // --- LÓGICA PARA INSTALAR LA APP AUTOMÁTICAMENTE ---
+        window.addEventListener('load', () => {
+            // Si ya está instalada, no hacemos nada
+            if ('serviceWorker' in navigator) {
+                // Registro básico para que el navegador la tome como app
+                navigator.serviceWorker.register('sw.js').catch(() => {});
+            }
+            
+            // Botón invisible para forzar la instalación si el navegador lo permite
+            // O simplemente mostramos un aviso visual si detectamos iOS/Android
+            if (!window.matchMedia('(display-mode: standalone)').matches) {
+                // Aquí podrías añadir un texto: "Toca Compartir > Añadir a Inicio"
+            }
+        });
+    </script>
+</body>
+</html>
